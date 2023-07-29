@@ -1,26 +1,77 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { validate } from 'uuid';
+
+import db from '../db';
+
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 
 @Injectable()
 export class AlbumService {
-    create(createAlbumDto: CreateAlbumDto) {
-        return 'This action adds a new album';
+    create({ name, year, artistId }: CreateAlbumDto) {
+        if (
+            typeof name !== 'string' ||
+            typeof year !== 'number' ||
+            !(artistId === null || validate(artistId))
+        ) {
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid input data' } };
+        }
+
+        const album = db.albums.createAlbum({ name, year, artistId });
+
+        return { data: album };
     }
 
     findAll() {
-        return `This action returns all album`;
+        return db.albums.getAlbums();
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} album`;
+    findOne(id: string) {
+        if (!validate(id)) {
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid album id provided' } };
+        }
+
+        try {
+            const album = db.albums.getAlbum(id);
+            return { data: album };
+        } catch (error) {
+            return { error: { status: HttpStatus.NOT_FOUND, message: `Album with id ${id} not found` } };
+        }
     }
 
-    update(id: number, updateAlbumDto: UpdateAlbumDto) {
-        return `This action updates a #${id} album`;
+    updateAlbum(id: string, { name, artistId, year }: UpdateAlbumDto) {
+        if (!validate(id)) {
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid album id provided' } };
+        }
+
+        if (
+            (name && (typeof name !== 'string')) ||
+            (year && (typeof year !== 'number')) ||
+            !(validate(artistId) || artistId === null)
+        ) {
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid request body' } };
+        }
+
+        try {
+            const album = db.albums.updateAlbum(id, { name, year, artistId });
+
+            return { data: album };
+        } catch (error) {
+            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
+        }
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} album`;
+    deleteAlbum(id: string) {
+        if (!validate(id)) {
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid album id provided' } };
+        }
+
+        try {
+            const isAlbumDeleted = db.albums.deleteAlbum(id);
+
+            return { data: isAlbumDeleted }
+        } catch (error) {
+            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
+        }
     }
 }

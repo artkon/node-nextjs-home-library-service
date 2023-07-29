@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 
 import { CreateTrackDto, ITrack, UpdateTrackDto, ITracksDB } from './type';
+import { FavsDB } from './favs';
 
 
 export const TracksDB: ITracksDB = {
@@ -35,7 +36,7 @@ export const TracksDB: ITracksDB = {
     },
 
     updateTrack(trackId: string, { name, artistId, duration, albumId }: UpdateTrackDto): ITrack {
-        const track = this.tracks.find(({ id }) => (id === trackId));
+        const track = this.getTrack(trackId);
 
         Object.assign(
             track,
@@ -58,6 +59,11 @@ export const TracksDB: ITracksDB = {
         }
 
         this.tracks.splice(trackIndex, 1);
+        try {
+            FavsDB.deleteTrack(trackId);
+        } catch {
+            return true;
+        }
 
         return true;
     },
@@ -72,5 +78,17 @@ export const TracksDB: ITracksDB = {
         });
 
         return true;
-    }
+    },
+
+    removeAlbum(albumId: string): boolean {
+        this.tracks = this.tracks.map((track: ITrack): ITrack => {
+            if (track.albumId === albumId) {
+                track.albumId = null;
+            }
+
+            return track;
+        });
+
+        return true;
+    },
 };

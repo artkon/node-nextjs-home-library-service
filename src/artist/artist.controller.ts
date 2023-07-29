@@ -48,13 +48,17 @@ export class ArtistController {
 
     @Delete(':id')
     remove(@Param('id') id: string, @Res() response: Response) {
-        const { error, data } = this.artistService.deleteArtist(id);
-        if (error) {
-            response.status(error.status).send({ error: error.message });
-        }
+        try {
+            const { error, data } = this.artistService.deleteArtist(id);
+            if (error) {
+                response.status(error.status).send({ error: error.message });
+            }
 
-        if (data) {
-            response.status(HttpStatus.NO_CONTENT).send();
+            if (data) {
+                response.status(HttpStatus.NO_CONTENT).send();
+            }
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send({ error: error.message });
         }
     }
 }

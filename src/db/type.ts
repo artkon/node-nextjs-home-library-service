@@ -47,6 +47,7 @@ export interface ITracksDB {
     updateTrack(trackId: string, updateTrackDto: UpdateTrackDto): ITrack;
     deleteTrack(trackId: string): boolean;
     removeArtist(artistId: string): boolean;
+    removeAlbum(albumId: string): boolean;
 }
 
 export interface IArtist {
@@ -68,5 +69,49 @@ export interface IArtistsDB {
     getArtist(artistId: string): IArtist;
     createArtist(artistDto: CreateArtistDto): IArtist;
     updateArtist(artistId: string, updateArtistDto: UpdateArtistDto): IArtist;
+    deleteArtist(artistId: string): boolean;
+}
+
+export interface IAlbum {
+    id: string; // uuid v4
+    name: string;
+    year: number;
+    artistId: string | null; // refers to Artist
+}
+
+export type CreateAlbumDto = Omit<IAlbum, 'id'>
+
+export interface UpdateAlbumDto {
+    name?: string;
+    year?: number;
+    artistId?: string | null;
+}
+
+export interface IAlbumsDB {
+    albums: IAlbum[];
+    getAlbums(): IAlbum[];
+    getAlbum(albumId: string): IAlbum;
+    createAlbum(artistDto: CreateAlbumDto): IAlbum;
+    updateAlbum(albumId: string, updateAlbumDto: UpdateAlbumDto): IAlbum;
+    deleteAlbum(albumId: string): boolean;
+    removeArtist(artistId: string): boolean;
+}
+
+export interface IFavs {
+    artists: IArtist[];
+    albums: IAlbum[];
+    tracks: ITrack[];
+}
+
+export interface IFavsDB {
+    artistIds: string[];
+    albumIds: string[];
+    trackIds: string[];
+    getFavs(): IFavs;
+    addTrack(trackId: string): boolean;
+    addAlbum(albumId: string): boolean;
+    addArtist(artistId: string): boolean;
+    deleteTrack(trackId: string): boolean;
+    deleteAlbum(albumId: string): boolean;
     deleteArtist(artistId: string): boolean;
 }

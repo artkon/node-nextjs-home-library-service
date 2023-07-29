@@ -1,22 +1,24 @@
-import { IUsersDB, ITracksDB, IArtistsDB } from './type';
+import { IUsersDB, ITracksDB, IArtistsDB, IAlbumsDB, IFavsDB } from "./type";
 import { UsersDB } from './users';
 import { TracksDB } from './tracks';
 import { ArtistsDB } from './artists';
+import { AlbumsDB } from './albums';
+import { FavsDB } from './favs';
 
 interface IDb {
     users: IUsersDB,
     artists: IArtistsDB,
-    albums: IUsersDB,
+    albums: IAlbumsDB,
     tracks: ITracksDB,
-    favs: IUsersDB,
+    favs: IFavsDB,
 }
 
 const db: IDb = {
     users: UsersDB,
     artists: ArtistsDB,
-    albums: UsersDB,
+    albums: AlbumsDB,
     tracks: TracksDB,
-    favs: UsersDB,
+    favs: FavsDB,
 };
 
 export default db;

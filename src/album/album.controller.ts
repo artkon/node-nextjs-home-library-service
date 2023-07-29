@@ -1,12 +1,6 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, HttpStatus, Res, Put } from '@nestjs/common';
+import { Response } from 'express';
+
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
@@ -16,8 +10,12 @@ export class AlbumController {
     constructor(private readonly albumService: AlbumService) {}
 
     @Post()
-    create(@Body() createAlbumDto: CreateAlbumDto) {
-        return this.albumService.create(createAlbumDto);
+    create(@Body() createAlbumDto: CreateAlbumDto, @Res() response: Response) {
+        const { error, data } = this.albumService.create(createAlbumDto);
+        if (error) {
+            response.status(error.status).send({ error: error.message });
+        }
+        response.status(HttpStatus.CREATED).send(data);
     }
 
     @Get()
@@ -26,17 +24,36 @@ export class AlbumController {
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.albumService.findOne(+id);
+    findOne(@Param('id') id: string, @Res() response: Response) {
+        const { data, error } = this.albumService.findOne(id);
+        if (error) {
+            response.status(error.status).send({ error: error.message });
+        }
+        response.send(data);
     }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
-        return this.albumService.update(+id, updateAlbumDto);
+    @Put(':id')
+    updateAlbum(
+        @Param('id') id: string,
+        @Body() updateAlbumDto: UpdateAlbumDto,
+        @Res() response: Response,
+    ) {
+        const { error, data } = this.albumService.updateAlbum(id, updateAlbumDto);
+        if (error) {
+            response.status(error.status).send({ error: error.message });
+        } else {
+            response.status(HttpStatus.OK).send(data);
+        }
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.albumService.remove(+id);
+    deleteAlbum(@Param('id') id: string, @Res() response: Response) {
+        const { error, data } = this.albumService.deleteAlbum(id);
+        if (error) {
+            response.status(error.status).send({ error: error.message });
+        }
+        if (data) {
+            response.status(HttpStatus.NO_CONTENT).send();
+        }
     }
 }
