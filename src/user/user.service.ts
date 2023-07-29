@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { validate } from 'uuid';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -12,7 +12,7 @@ import { IServiceResponse } from '../common/types';
 export class UserService {
     create({ login, password }: CreateUserDto): IServiceResponse {
         if (typeof login !== 'string' || typeof password !== 'string') {
-            return { error: { status: 400, message: 'Invalid input data' } };
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid input data' } };
         }
         const user = db.users.createUser({ login, password });
 
@@ -25,39 +25,44 @@ export class UserService {
 
     findOne(id: string): IServiceResponse {
         if (!validate(id)) {
-            return { error: { status: 400, message: 'Invalid user id provided' } };
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid user id provided' } };
         }
 
         try {
             const user = db.users.getUser(id);
             return { data: user };
         } catch (error) {
-            return { error: { status: 404, message: `User with id ${id} not found` } };
+            return { error: { status: HttpStatus.NOT_FOUND, message: `User with id ${id} not found` } };
         }
     }
 
     updatePassword(id: string, { oldPassword, newPassword }: UpdatePasswordDto): IServiceResponse {
         if (!validate(id)) {
-            return { error: { status: 400, message: 'Invalid user id provided' } };
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid user id provided' } };
         }
+
+        if (typeof oldPassword !== 'string' || typeof newPassword !== 'string') {
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid request body' } };
+        }
+
         try {
             const password = db.users.getUserPassword(id);
 
             if (password !== oldPassword) {
-                return { error: { status: 403, message: 'Current password is wrong' } };
+                return { error: { status: HttpStatus.FORBIDDEN, message: 'Current password is wrong' } };
             }
 
             const user = db.users.updateUserPassword(id, newPassword);
 
             return { data: user };
         } catch (error) {
-            return { error: { status: 404, message: error.message } };
+            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
         }
     }
 
     deleteUser(id: string): IServiceResponse  {
         if (!validate(id)) {
-            return { error: { status: 400, message: 'Invalid user id provided' } };
+            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid user id provided' } };
         }
 
         try {
@@ -67,7 +72,7 @@ export class UserService {
                 data: isPasswordChanged,
             }
         } catch (error) {
-            return { error: { status: 404, message: error.message } };
+            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
         }
     }
 }

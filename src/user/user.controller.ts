@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Res, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,7 +16,7 @@ export class UserController {
         if (error) {
             response.status(error.status).send({ error: error.message });
         }
-        response.status(201).send(data);
+        response.status(HttpStatus.CREATED).send(data);
     }
 
     @Get()
@@ -43,7 +43,7 @@ export class UserController {
         if (error) {
             response.status(error.status).send({ error: error.message });
         } else {
-            response.status(200).send(data);
+            response.status(HttpStatus.OK).send(data);
         }
     }
 
@@ -55,7 +55,7 @@ export class UserController {
         }
 
         if (data) {
-            response.status(204).send();
+            response.status(HttpStatus.NO_CONTENT).send();
         }
     }
 }

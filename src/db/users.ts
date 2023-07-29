@@ -49,7 +49,7 @@ export const UsersDB: IUsersDB = {
     },
 
     updateUserPassword(userId: string, newPassword: string): IUser {
-        const user = this.getUser(userId);
+        const user = this.users.find(({ id }) => (id === userId));
 
         Object.assign(
             user,
