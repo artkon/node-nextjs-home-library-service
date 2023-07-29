@@ -66,11 +66,9 @@ export class UserService {
         }
 
         try {
-            const isPasswordChanged = db.users.deleteUser(id);
+            const isUserDeleted = db.users.deleteUser(id);
 
-            return {
-                data: isPasswordChanged,
-            }
+            return { data: isUserDeleted };
         } catch (error) {
             return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
         }

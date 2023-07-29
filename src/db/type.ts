@@ -21,3 +21,29 @@ export interface IUsersDB {
     updateUserPassword(userId: string, password: string): IUser;
     deleteUser(userId: string): boolean;
 }
+
+export interface ITrack {
+    id: string; // uuid v4
+    name: string;
+    artistId: string | null; // refers to Artist
+    albumId: string | null; // refers to Album
+    duration: number; // integer number
+}
+
+export type CreateTrackDto = Omit<ITrack, 'id'>
+
+export interface UpdateTrackDto {
+    name?: string;
+    artistId?: string | null;
+    albumId?: string | null;
+    duration?: number;
+}
+
+export interface ITracksDB {
+    tracks: ITrack[];
+    getTracks(): ITrack[];
+    getTrack(trackId: string): ITrack;
+    createTrack(trackDto: CreateTrackDto): ITrack;
+    updateTrack(trackId: string, updateTrackDto: UpdateTrackDto): ITrack;
+    deleteTrack(trackId: string): boolean;
+}
