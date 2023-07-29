@@ -1,26 +1,42 @@
 import { v4 as uuid } from 'uuid';
 
-import { IUserDB, User, UserDto } from './type';
+import { IUserDB, CreateUserDto, IUsersDB, IUser } from './type';
 
 
-export const UserDB: IUserDB = {
+const filterPassword = ({ password: _, ...rest }: IUserDB): IUser => rest;
+
+export const UsersDB: IUsersDB = {
     users: [],
-    getUsers(): [User] {
-        return this.users;
+
+    getUsers(): IUser[] {
+        return this.users.map(filterPassword);
     },
-    getUser(userId): User {
+
+    getUser(userId: string): IUser {
         const user = this.users.find(({ id }) => (id === userId));
 
         if (!user) {
-            throw new Error(`No user with id:${userId}`)
+            throw new Error(`No user with id: ${userId}`);
         }
 
-        return user;
+        return filterPassword(user);
     },
+
+    getUserPassword(userId: string): string {
+        const user = this.users.find(({ id }) => (id === userId));
+
+        if (!user) {
+            throw new Error(`No user with id: ${userId}`);
+        }
+
+        return user.password;
+    },
+
     // add dto type
-    createUser(userDto: UserDto): Omit<User, 'password'> {
+    createUser(userDto: CreateUserDto): IUser {
         const user = {
-            ...userDto,
+            login: userDto.login,
+            password: userDto.password,
             id: uuid(),
             createdAt: Date.now(),
             updatedAt: Date.now(),
@@ -29,29 +45,33 @@ export const UserDB: IUserDB = {
 
         this.users.push(user);
 
-        return user;
+        return filterPassword(user);
     },
-    // add dto type
-    updateUser(userId: string, userDto: UserDto): Omit<User, 'password'> {
+
+    updateUserPassword(userId: string, newPassword: string): IUser {
         const user = this.getUser(userId);
+
         Object.assign(
             user,
-            userDto,
             {
+                password: newPassword,
                 updatedAt: Date.now(),
                 version: user.version + 1,
             },
         );
 
-        return user;
+        return filterPassword(user);
     },
-    deleteUser(userId: string): void {
+
+    deleteUser(userId: string): boolean {
         const userIndex = this.users.findIndex(({ id }) => (id === userId));
 
-        if (!userIndex) {
-            throw new Error(`No user with id:${userId}`);
+        if (userIndex === -1) {
+            throw new Error(`No user with id: ${userId}`);
         }
 
         this.users.splice(userIndex, 1);
+
+        return true;
     },
 };

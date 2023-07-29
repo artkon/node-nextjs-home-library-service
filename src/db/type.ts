@@ -1,4 +1,4 @@
-export interface User {
+export interface IUserDB {
     id: string; // uuid v4
     login: string;
     password: string;
@@ -7,13 +7,17 @@ export interface User {
     updatedAt: number; // timestamp of last update
 }
 
-export type UserDto = Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'version'>;
+export type IUser = Omit<IUserDB, 'password'>;
 
-export interface IUserDB {
-    users: User[];
-    getUsers(): User[];
-    getUser(userId: string): User;
-    createUser(userDto: UserDto): Omit<User, 'password'>;
-    updateUser(userId: string, userDto: UserDto): Omit<User, 'password'>;
-    deleteUser(userId: string): void;
+export type CreateUserDto = Omit<IUserDB, 'id' | 'createdAt' | 'updatedAt' | 'version'>;
+
+
+export interface IUsersDB {
+    users: IUser[];
+    getUsers(): IUser[];
+    getUser(userId: string): IUser;
+    getUserPassword(userId: string): string;
+    createUser(userDto: CreateUserDto): IUser;
+    updateUserPassword(userId: string, password: string): IUser;
+    deleteUser(userId: string): boolean;
 }

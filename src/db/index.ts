@@ -1,20 +1,20 @@
-import { UserDB } from './users';
-import { IUserDB } from './type';
+import { UsersDB } from './users';
+import { IUsersDB } from './type';
 
 interface IDb {
-    users: IUserDB,
-    artists: IUserDB,
-    albums: IUserDB,
-    tracks: IUserDB,
-    favs: IUserDB,
+    users: IUsersDB,
+    artists: IUsersDB,
+    albums: IUsersDB,
+    tracks: IUsersDB,
+    favs: IUsersDB,
 }
 
 const db: IDb = {
-    users: UserDB,
-    artists: UserDB,
-    albums: UserDB,
-    tracks: UserDB,
-    favs: UserDB,
+    users: UsersDB,
+    artists: UsersDB,
+    albums: UsersDB,
+    tracks: UsersDB,
+    favs: UsersDB,
 };
 
 export default db;

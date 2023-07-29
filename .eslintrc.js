@@ -21,5 +21,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     indent: ['error', 4],
     "no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1 }],
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
   },
 };
