@@ -46,4 +46,27 @@ export interface ITracksDB {
     createTrack(trackDto: CreateTrackDto): ITrack;
     updateTrack(trackId: string, updateTrackDto: UpdateTrackDto): ITrack;
     deleteTrack(trackId: string): boolean;
+    removeArtist(artistId: string): boolean;
+}
+
+export interface IArtist {
+    id: string; // uuid v4
+    name: string;
+    grammy: boolean;
+}
+
+export type CreateArtistDto = Omit<IArtist, 'id'>
+
+export interface UpdateArtistDto {
+    name?: string;
+    grammy?: boolean;
+}
+
+export interface IArtistsDB {
+    artists: IArtist[];
+    getArtists(): IArtist[];
+    getArtist(artistId: string): IArtist;
+    createArtist(artistDto: CreateArtistDto): IArtist;
+    updateArtist(artistId: string, updateArtistDto: UpdateArtistDto): IArtist;
+    deleteArtist(artistId: string): boolean;
 }

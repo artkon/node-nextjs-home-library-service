@@ -36,7 +36,6 @@ export const TracksDB: ITracksDB = {
 
     updateTrack(trackId: string, { name, artistId, duration, albumId }: UpdateTrackDto): ITrack {
         const track = this.tracks.find(({ id }) => (id === trackId));
-        console.log(track);
 
         Object.assign(
             track,
@@ -62,4 +61,16 @@ export const TracksDB: ITracksDB = {
 
         return true;
     },
+
+    removeArtist(artistId: string): boolean {
+        this.tracks = this.tracks.map((track: ITrack): ITrack => {
+            if (track.artistId === artistId) {
+                track.artistId = null;
+            }
+
+            return track;
+        });
+
+        return true;
+    }
 };
