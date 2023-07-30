@@ -104,9 +104,9 @@ export interface IFavs {
 }
 
 export interface IFavsDB {
-    artistIds: string[];
-    albumIds: string[];
-    trackIds: string[];
+    artists: string[];
+    albums: string[];
+    tracks: string[];
     getFavs(): IFavs;
     addTrack(trackId: string): boolean;
     addAlbum(albumId: string): boolean;
