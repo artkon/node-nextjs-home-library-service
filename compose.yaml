@@ -1,0 +1,48 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker compose reference guide at
+# https://docs.docker.com/compose/compose-file/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  server:
+    user: node:node
+    build: .
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres?schema=public
+    ports:
+      - ${PORT}:${PORT}
+    networks:
+      - postgres_network
+    depends_on:
+      - postgres
+    restart: on-failure
+    volumes:
+      - ./src:/app/src
+      - ./typeorm:/app/typeorm
+
+
+  postgres:
+    build: postgres
+    restart: always
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres_network
+    expose:
+      - 5432
+
+volumes:
+  postgres:
+networks:
+  postgres_network:

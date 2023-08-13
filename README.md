@@ -19,14 +19,17 @@ npm install
 
 ## Running application
 
-Create `.env` file from `.env.example`
+Rename `.env.example` file to `.env`
+
+
+## Start docker containers
 
 ```
-npm start
+docker compose up --build
 ```
+
 
 After starting the app on port (4000 as default).
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ## Testing
 
@@ -36,10 +39,4 @@ To run all tests without authorization
 
 ```
 npm run test
-```
-
-### For linting
-
-```
-npm run lint
 ```
