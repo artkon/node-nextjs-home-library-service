@@ -40,3 +40,9 @@ To run all tests without authorization
 ```
 npm run test
 ```
+
+## Scan vulnerabilities
+
+```
+npm run scan:vulnerabilities
+```
