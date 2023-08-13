@@ -1,14 +1,26 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { validate } from 'uuid';
 
-import db from '../db';
+import { IServiceResponse } from '../common/types';
+import { Artist } from '../artist/entities/Artist';
 
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import { Album } from './entities/Album';
 
 @Injectable()
 export class AlbumService {
-    create({ name, year, artistId }: CreateAlbumDto) {
+
+    constructor(
+        @InjectRepository(Album)
+        private albumRepository: Repository<Album>,
+        @InjectRepository(Artist)
+        private artistRepository: Repository<Artist>,
+    ) {}
+
+    async create({ name, year, artistId }: CreateAlbumDto): Promise<IServiceResponse> {
         if (
             typeof name !== 'string' ||
             typeof year !== 'number' ||
@@ -17,31 +29,40 @@ export class AlbumService {
             return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid input data' } };
         }
 
-        const album = db.albums.createAlbum({ name, year, artistId });
+        const album = new Album();
+        album.name = name;
+        album.year = year;
+        album.artist = Promise.resolve(artistId ? await this.artistRepository.findOneBy({ id: artistId }) : null);
 
-        return { data: album };
+        const savedAlbum = await this.albumRepository.save(album);
+        const foundAlbum = await this.albumRepository.findOneBy({ id: savedAlbum.id });
+
+        return { data: foundAlbum };
     }
 
-    findAll() {
-        return db.albums.getAlbums();
+    async findAll(): Promise<Album[]> {
+        return this.albumRepository.find();
     }
 
-    findOne(id: string) {
+    async findOne(id: string): Promise<IServiceResponse> {
         if (!validate(id)) {
             return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid album id provided' } };
         }
 
-        try {
-            const album = db.albums.getAlbum(id);
+        const album = await this.albumRepository.findOneBy({ id });
+
+        if (album) {
             return { data: album };
-        } catch (error) {
+        } else {
             return { error: { status: HttpStatus.NOT_FOUND, message: `Album with id ${id} not found` } };
         }
     }
 
-    updateAlbum(id: string, { name, artistId, year }: UpdateAlbumDto) {
-        if (!validate(id)) {
-            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid album id provided' } };
+    async updateAlbum(id: string, { name, artistId, year }: UpdateAlbumDto): Promise<IServiceResponse> {
+        const { error, data } = await this.findOne(id);
+
+        if (error) {
+            return { error };
         }
 
         if (
@@ -52,26 +73,26 @@ export class AlbumService {
             return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid request body' } };
         }
 
-        try {
-            const album = db.albums.updateAlbum(id, { name, year, artistId });
+        const album = data as Album;
+        album.name = name ?? album.name;
+        album.artist = Promise.resolve(await this.artistRepository.findOneBy({ id: artistId }) || null);
+        album.year = year ?? album.year;
 
-            return { data: album };
-        } catch (error) {
-            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
-        }
+        const updatedAlbum = await this.albumRepository.save(album);
+
+        return { data: updatedAlbum };
     }
 
-    deleteAlbum(id: string) {
-        if (!validate(id)) {
-            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid album id provided' } };
+    async deleteAlbum(id: string): Promise<IServiceResponse> {
+        const { error , data } = await this.findOne(id);
+
+        if (error) {
+            return { error };
         }
 
-        try {
-            const isAlbumDeleted = db.albums.deleteAlbum(id);
+        const album = data as Album;
+        const removedAlbum = await this.albumRepository.remove(album);
 
-            return { data: isAlbumDeleted }
-        } catch (error) {
-            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
-        }
+        return { data: removedAlbum }
     }
 }

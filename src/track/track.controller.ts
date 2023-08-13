@@ -4,14 +4,15 @@ import { Response } from 'express';
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
+import { Track } from './entities/Track';
 
 @Controller('track')
 export class TrackController {
     constructor(private readonly trackService: TrackService) {}
 
     @Post()
-    create(@Body() createTrackDto: CreateTrackDto, @Res() response: Response) {
-        const { error, data } = this.trackService.create(createTrackDto);
+    async create(@Body() createTrackDto: CreateTrackDto, @Res() response: Response): Promise<void> {
+        const { error, data } = await this.trackService.create(createTrackDto);
         if (error) {
             response.status(error.status).send({ error: error.message });
         }
@@ -19,26 +20,27 @@ export class TrackController {
     }
 
     @Get()
-    findAll() {
-        return this.trackService.findAll();
+    async findAll(): Promise<Track[]> {
+        return await this.trackService.findAll();
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string, @Res() response: Response) {
-        const { data, error } = this.trackService.findOne(id);
+    async findOne(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const { data, error } = await this.trackService.findOne(id);
         if (error) {
             response.status(error.status).send({ error: error.message });
+        } else {
+            response.send(data);
         }
-        response.send(data);
     }
 
     @Put(':id')
-    updateTrack(
+    async updateTrack(
       @Param('id') id: string,
       @Body() updateTrackDto: UpdateTrackDto,
       @Res() response: Response,
-    ) {
-        const { error, data } = this.trackService.update(id, updateTrackDto);
+    ): Promise<void> {
+        const { error, data } = await this.trackService.update(id, updateTrackDto);
         if (error) {
             response.status(error.status).send({ error: error.message });
         } else {
@@ -47,13 +49,11 @@ export class TrackController {
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string, @Res() response: Response) {
-        const { error, data } = this.trackService.deleteTrack(id);
+    async remove(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const { error } = await this.trackService.deleteTrack(id);
         if (error) {
             response.status(error.status).send({ error: error.message });
-        }
-
-        if (data) {
+        } else {
             response.status(HttpStatus.NO_CONTENT).send();
         }
     }

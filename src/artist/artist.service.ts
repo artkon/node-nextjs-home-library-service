@@ -1,44 +1,58 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { validate } from 'uuid';
 
 import { IServiceResponse } from "../common/types";
-import db from '../db';
 
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { Artist } from './entities/Artist';
 
 @Injectable()
 export class ArtistService {
-    create({ name, grammy }: CreateArtistDto): IServiceResponse {
+
+    constructor(
+      @InjectRepository(Artist)
+      private artistRepository: Repository<Artist>
+    ) {}
+
+    async create({ name, grammy }: CreateArtistDto): Promise<IServiceResponse> {
         if (typeof name !== 'string' || typeof grammy !== 'boolean') {
             return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid input data' } };
         }
 
-        const artist = db.artists.createArtist({ name, grammy });
+        const artist = new Artist();
+        artist.name = name;
+        artist.grammy = grammy;
+        const savedArtist = await this.artistRepository.save(artist);
 
-        return { data: artist };
+        return { data: savedArtist };
     }
 
-    findAll() {
-        return db.artists.getArtists();
+    async findAll(): Promise<Artist[]> {
+        return await this.artistRepository.find();
     }
 
-    findOne(id: string) {
+    async findOne(id: string): Promise<IServiceResponse> {
         if (!validate(id)) {
             return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid artist id provided' } };
         }
 
-        try {
-            const artist = db.artists.getArtist(id);
+        const artist = await this.artistRepository.findOneBy({ id });
+
+        if (artist) {
             return { data: artist };
-        } catch (error) {
+        } else {
             return { error: { status: HttpStatus.NOT_FOUND, message: `Artist with id ${id} not found` } };
         }
     }
 
-    update(id: string, { name, grammy }: UpdateArtistDto) {
-        if (!validate(id)) {
-            return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid artist id provided' } };
+    async updateArtist(id: string, { name, grammy }: UpdateArtistDto): Promise<IServiceResponse> {
+        const { error, data } = await this.findOne(id);
+
+        if (error) {
+            return { error };
         }
 
         if (
@@ -48,26 +62,26 @@ export class ArtistService {
             return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid request body' } };
         }
 
-        try {
-            const artist = db.artists.updateArtist(id, { name, grammy });
+        const artist = data as Artist;
+        artist.name = name ?? artist.name;
+        artist.grammy = grammy ?? artist.grammy;
+        const updatedArtist = await this.artistRepository.save(artist);
 
-            return { data: artist };
-        } catch (error) {
-            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
-        }
+        return { data: updatedArtist };
     }
 
-    deleteArtist(id: string) {
+    async deleteArtist(id: string): Promise<IServiceResponse> {
         if (!validate(id)) {
             return { error: { status: HttpStatus.BAD_REQUEST, message: 'Invalid artist id provided' } };
         }
 
         try {
-            const isArtistDeleted = db.artists.deleteArtist(id);
+            const artist = await this.artistRepository.findOneBy({ id });
+            const deletedArtist = await this.artistRepository.remove(artist);
 
-            return { data: isArtistDeleted }
+            return { data: deletedArtist }
         } catch (error) {
-            return { error: { status: HttpStatus.NOT_FOUND, message: error.message } };
+            return { error: { status: HttpStatus.NOT_FOUND, message: `No artist with id: ${id}` } };
         }
     }
 }

@@ -3,7 +3,6 @@ import { Response } from 'express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-user.dto';
-import { IUser } from "../db/type";
 
 
 @Controller('user')
@@ -11,8 +10,8 @@ export class UserController {
     constructor(private readonly userService: UserService) {}
 
     @Post()
-    create(@Body() createUserDto: CreateUserDto, @Res() response: Response): void {
-        const { error, data } = this.userService.create(createUserDto);
+    async create(@Body() createUserDto: CreateUserDto, @Res() response: Response): Promise<void> {
+        const { error, data } = await this.userService.create(createUserDto);
         if (error) {
             response.status(error.status).send({ error: error.message });
         }
@@ -20,13 +19,13 @@ export class UserController {
     }
 
     @Get()
-    findAll(): IUser[] {
+    findAll() {
         return this.userService.findAll();
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string, @Res() response: Response): void {
-        const { data, error } = this.userService.findOne(id);
+    async findOne(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const { data, error } = await this.userService.findOne(id);
         if (error) {
             response.status(error.status).send({ error: error.message });
         }
@@ -34,12 +33,12 @@ export class UserController {
     }
 
     @Put(':id')
-    updatePassword(
+    async updatePassword(
         @Param('id') id: string,
         @Body() updatePasswordDto: UpdatePasswordDto,
         @Res() response: Response,
-    ): void {
-        const { error, data } = this.userService.updatePassword(id, updatePasswordDto);
+    ): Promise<void> {
+        const { error, data } = await this.userService.updatePassword(id, updatePasswordDto);
         if (error) {
             response.status(error.status).send({ error: error.message });
         } else {
@@ -48,8 +47,8 @@ export class UserController {
     }
 
     @Delete(':id')
-    deleteUser(@Param('id') id: string, @Res() response: Response): void {
-        const { error, data } = this.userService.deleteUser(id);
+    async deleteUser(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const { error, data } = await this.userService.deleteUser(id);
         if (error) {
             response.status(error.status).send({ error: error.message });
         }

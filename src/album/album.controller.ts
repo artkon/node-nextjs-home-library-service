@@ -4,41 +4,47 @@ import { Response } from 'express';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import { Album } from './entities/Album';
+
 
 @Controller('album')
 export class AlbumController {
-    constructor(private readonly albumService: AlbumService) {}
+    constructor(
+        private readonly albumService: AlbumService,
+    ) {}
 
     @Post()
-    create(@Body() createAlbumDto: CreateAlbumDto, @Res() response: Response) {
-        const { error, data } = this.albumService.create(createAlbumDto);
+    async create(@Body() createAlbumDto: CreateAlbumDto, @Res() response: Response): Promise<void> {
+        const { error, data } = await this.albumService.create(createAlbumDto);
         if (error) {
             response.status(error.status).send({ error: error.message });
+        } else {
+            response.status(HttpStatus.CREATED).send(data);
         }
-        response.status(HttpStatus.CREATED).send(data);
     }
 
     @Get()
-    findAll() {
-        return this.albumService.findAll();
+    async findAll(): Promise<Album[]> {
+        return await this.albumService.findAll();
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string, @Res() response: Response) {
-        const { data, error } = this.albumService.findOne(id);
+    async findOne(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const { data, error } = await this.albumService.findOne(id);
         if (error) {
             response.status(error.status).send({ error: error.message });
+        } else {
+            response.send(data);
         }
-        response.send(data);
     }
 
     @Put(':id')
-    updateAlbum(
+    async updateAlbum(
         @Param('id') id: string,
         @Body() updateAlbumDto: UpdateAlbumDto,
         @Res() response: Response,
-    ) {
-        const { error, data } = this.albumService.updateAlbum(id, updateAlbumDto);
+    ): Promise<void> {
+        const { error, data } = await this.albumService.updateAlbum(id, updateAlbumDto);
         if (error) {
             response.status(error.status).send({ error: error.message });
         } else {
@@ -47,12 +53,11 @@ export class AlbumController {
     }
 
     @Delete(':id')
-    deleteAlbum(@Param('id') id: string, @Res() response: Response) {
-        const { error, data } = this.albumService.deleteAlbum(id);
+    async deleteAlbum(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const { error } = await this.albumService.deleteAlbum(id);
         if (error) {
             response.status(error.status).send({ error: error.message });
-        }
-        if (data) {
+        } else {
             response.status(HttpStatus.NO_CONTENT).send();
         }
     }
