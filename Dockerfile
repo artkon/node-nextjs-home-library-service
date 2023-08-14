@@ -27,4 +27,4 @@ COPY . .
 EXPOSE 4000
 
 # Create /usr/src/app/dist and run the application.
-CMD nodemon --watch src --ext ts --legacy-watch --exec "npm run start"
+CMD nodemon --watch src --ext ts --legacy-watch --exec "npm run migration:run && npm run start"

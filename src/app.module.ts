@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { getPostgresConfig } from './config/getPostgresConfig';
+import { typeOrmOptions } from './db/data-source';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -13,7 +13,7 @@ import { FavsModule } from './favs/favs.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forRoot(getPostgresConfig()),
+        TypeOrmModule.forRoot(typeOrmOptions),
         UserModule,
         ArtistModule,
         TrackModule,
