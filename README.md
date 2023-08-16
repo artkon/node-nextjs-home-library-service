@@ -19,7 +19,17 @@ npm install
 
 ## Running application
 
-Rename `.env.example` file to `.env`
+Add `.env` file with following content: 
+```
+PORT=4000
+
+POSTGRES_PORT=5432
+POSTGRES_HOST=postgres
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+
+```
 
 
 ## Start docker containers
