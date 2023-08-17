@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, Res, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
+
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-user.dto';
+import { User } from './entities/User';
 
 
 @Controller('user')
@@ -19,7 +21,7 @@ export class UserController {
     }
 
     @Get()
-    findAll() {
+    findAll(): Promise<Omit<User, 'password'>[]> {
         return this.userService.findAll();
     }
 
