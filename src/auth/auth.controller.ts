@@ -27,4 +27,13 @@ export class AuthController {
         return this.authService.signIn(login, password);
     }
 
+    @Public()
+    @HttpCode(HttpStatus.OK)
+    @Post('refresh')
+    refresh(@Body() { refreshToken }: { refreshToken: string }) {
+        if (!refreshToken) throw new BadRequestException();
+
+        return this.authService.refresh(refreshToken);
+    }
+
 }
