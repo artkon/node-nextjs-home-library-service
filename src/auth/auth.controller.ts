@@ -2,18 +2,25 @@ import { BadRequestException, Body, Controller, HttpCode, HttpStatus, Post } fro
 
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
+import { RefreshDto } from './dto/refresh.dto';
 import { Public } from './decorators/Public';
 
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(
+      private authService: AuthService,
+    ) {}
 
     @Public()
     @HttpCode(HttpStatus.CREATED)
     @Post('signup')
-    signUp(@Body() { login, password }: AuthDto) {
-        if (!login || !password) throw new BadRequestException();
+    signUp(@Body() { login, password }: any) {
+        if (
+            !login || !password ||
+            typeof login !== 'string' ||
+            typeof password !== 'string'
+        ) throw new BadRequestException();
 
         return this.authService.signUp(login, password);
     }
@@ -22,7 +29,11 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @Post('login')
     signIn(@Body() { login, password }: AuthDto) {
-        if (!login || !password) throw new BadRequestException();
+        if (
+            !login || !password ||
+            typeof login !== 'string' ||
+            typeof password !== 'string'
+        ) throw new BadRequestException();
 
         return this.authService.signIn(login, password);
     }
@@ -30,8 +41,8 @@ export class AuthController {
     @Public()
     @HttpCode(HttpStatus.OK)
     @Post('refresh')
-    refresh(@Body() { refreshToken }: { refreshToken: string }) {
-        if (!refreshToken) throw new BadRequestException();
+    refresh(@Body() { refreshToken }: RefreshDto) {
+        if (!refreshToken || typeof refreshToken !== 'string') throw new BadRequestException();
 
         return this.authService.refresh(refreshToken);
     }

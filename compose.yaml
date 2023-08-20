@@ -22,6 +22,8 @@ services:
       TOKEN_EXPIRE_TIME: ${TOKEN_EXPIRE_TIME}
       TOKEN_REFRESH_EXPIRE_TIME: ${TOKEN_REFRESH_EXPIRE_TIME}
       CRYPT_SALT: ${CRYPT_SALT}
+      LOG_LEVEL: ${LOG_LEVEL}
+      LOG_FILE_ROTATION_KB: ${LOG_FILE_ROTATION_KB}
     ports:
       - ${PORT}:${PORT}
     networks:
@@ -31,6 +33,7 @@ services:
     restart: on-failure
     volumes:
       - ./src:/app/src
+      - ./log:/log
       - ./typeorm:/app/typeorm
 
   postgres:
