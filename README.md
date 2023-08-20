@@ -17,19 +17,9 @@ git clone {repository URL}
 npm install
 ```
 
-## Running application
+## Preparing
 
-Add `.env` file with following content: 
-```
-PORT=4000
-
-POSTGRES_PORT=5432
-POSTGRES_HOST=postgres
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-
-```
+Rename `.env.example` to `.env`
 
 
 ## Start docker containers
@@ -55,4 +45,9 @@ npm run test
 
 ```
 npm run scan:vulnerabilities
+```
+## Lint
+
+```
+npm run lint
 ```
